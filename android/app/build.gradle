@@ -1,0 +1,110 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'dev.flutter.flutter-gradle-plugin'
+}
+
+// Reading key.properties using FileInputStream.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
+// Reading local.properties using withReader.
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+
+android {
+    namespace 'com.lucentally.lucentally'
+    compileSdk 34 // If this gets changed also change in build.gradle subprojects because isar is not getting updated...
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        // * --- Part of local Notification Setup.
+        // Flag to enable support for the new language APIs
+        coreLibraryDesugaringEnabled true
+
+        // Sets Java compatibility to Java 8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    signingConfigs {
+        release {
+            // Validate only for release builds.
+            if (gradle.startParameter.taskNames.any { it.toLowerCase().contains('release') }) {
+                if (!keystoreProperties.containsKey('storeFile') ||
+                    !keystoreProperties.containsKey('storePassword') ||
+                    !keystoreProperties.containsKey('keyAlias') ||
+                    !keystoreProperties.containsKey('keyPassword')) {
+                    throw new GradleException("Missing required keystore properties in key.properties.")
+                }
+            }
+            
+            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword keystoreProperties['storePassword']
+            keyAlias keystoreProperties['keyAlias']
+            keyPassword keystoreProperties['keyPassword']
+        }
+    }
+
+    defaultConfig {
+        applicationId 'com.lucentally.lucentally'
+        multiDexEnabled true // * --- Part of local Notification Setup.
+        minSdk 33
+        targetSdk 34
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.debug
+        }
+        release {
+            // Enable minification to shrink code and resources.
+            minifyEnabled true
+            shrinkResources true
+            debuggable false
+
+            // Enable ProGuard for code obfuscation (optional).
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            // Signing configuration for release.
+            signingConfig signingConfigs.release
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    // * --- Part of local Notification Setup.
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+}

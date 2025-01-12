@@ -1,0 +1,15 @@
+flutter_launcher_icons:
+  # Image paths.
+  image_path_android: "assets/launcher/logo_transparent_gradient.png"
+  image_path_ios: "assets/launcher/logo.png"
+
+  # Platform is enabled.
+  android: true
+  ios: true
+
+  # Specifications.
+  remove_alpha_ios: true
+
+  # Notification Icons
+  android_notification_icon: true
+  android_notification_icon_path: "assets/launcher/logo_transparent_white.png"

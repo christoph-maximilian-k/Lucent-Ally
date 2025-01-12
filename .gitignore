@@ -1,0 +1,73 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Flutter/Dart/Pub related.
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+/build/
+
+# Web related.
+lib/generated_plugin_registrant.dart
+
+# Symbolication related.
+app.*.symbols
+
+# Obfuscation related.
+app.*.map.json
+
+# Android Studio will place build artifacts here.
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Sensitive files and configurations.
+# Exclude keystore files to prevent exposing sensitive signing credentials.
+**/*.keystore
+**/*.jks
+**/key.properties
+
+# Local development configurations.
+local.properties
+
+# Log files and temporary files.
+*.log
+*.tmp
+
+# Crashlytics.
+crashlytics.properties
+
+# IDE-specific.
+.vscode/
+*.code-workspace
+
+# Envs.
+*.env
+
+# Pods.
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
