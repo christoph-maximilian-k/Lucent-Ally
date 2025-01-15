@@ -17,6 +17,7 @@ class ImageView extends StatefulWidget {
   final bool overlayVisible;
   final Function() fileItemFuture;
   final bool shouldReload;
+  final TransformationController transformationController;
 
   const ImageView({
     super.key,
@@ -24,6 +25,7 @@ class ImageView extends StatefulWidget {
     required this.fileItem,
     required this.fileItemFuture,
     required this.shouldReload,
+    required this.transformationController,
   });
 
   @override
@@ -76,38 +78,45 @@ class _ImageViewState extends State<ImageView> {
                 child: Container(
                   constraints: BoxConstraints(maxHeight: height * 0.75),
                   child: FutureBuilder(
-                      future: _fileItemFuture,
-                      builder: (context, snapshot) {
-                        // Show loading spinner.
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return CustomLoadingSpinner();
-                        }
+                    future: _fileItemFuture,
+                    builder: (context, snapshot) {
+                      // Show loading spinner.
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return CustomLoadingSpinner();
+                      }
 
-                        // Convenience variables.
-                        final FileItem? fileItem = snapshot.data;
+                      // Convenience variables.
+                      final FileItem? fileItem = snapshot.data;
 
-                        // Show failure.
-                        final bool hasFailure = fileItem == null || fileItem.bytes == null;
+                      // Show failure.
+                      final bool hasFailure = fileItem == null || fileItem.bytes == null;
 
-                        if (fileItem == null || hasFailure) {
-                          return IconButton(
-                            onPressed: () => _retriggerFileItemFuture(),
-                            icon: Icon(
-                              AppIcons.refresh,
-                              color: Theme.of(context).iconTheme.color,
-                              size: 30.0,
-                            ),
-                          );
-                        }
+                      if (fileItem == null || hasFailure) {
+                        return IconButton(
+                          onPressed: () => _retriggerFileItemFuture(),
+                          icon: Icon(
+                            AppIcons.refresh,
+                            color: Theme.of(context).iconTheme.color,
+                            size: 30.0,
+                          ),
+                        );
+                      }
 
-                        return ClipRRect(
-                          borderRadius: BorderRadius.circular(5.0),
+                      return ClipRRect(
+                        borderRadius: BorderRadius.circular(5.0),
+                        child: InteractiveViewer(
+                          transformationController: widget.transformationController,
+                          panEnabled: true,
+                          minScale: 1.0,
+                          maxScale: 12.0,
                           child: Image.memory(
                             fileItem.bytes!,
                             fit: BoxFit.contain,
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ),

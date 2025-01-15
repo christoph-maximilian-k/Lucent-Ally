@@ -1,5 +1,9 @@
 # Lucent Ally
 
+<p align="center">
+  <img src="https://github.com/christoph-maximilian-k/Lucent-Ally/blob/main/assets/launcher/logo_transparent_gradient.png" alt="Project Logo">
+</p>
+
 An information storage, organization, and evaluation application.
 
 ## This repository contains the complete source code of the application for Lucent Ally

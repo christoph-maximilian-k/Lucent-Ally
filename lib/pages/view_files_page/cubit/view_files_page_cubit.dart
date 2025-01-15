@@ -119,6 +119,12 @@ class ViewFilesPageCubit extends Cubit<ViewFilesPageState> {
     ));
   }
 
+  /// This method will be triggered if user double tabs on page.
+  void onDoubleTap({required TransformationController transformationController}) {
+    // Reset the transformation to the initial scale and position.
+    transformationController.value = Matrix4.identity();
+  }
+
   /// This method is triggerd if user wants to view file options.
   Future<void> onMenuPressed({required BuildContext context}) async {
     try {

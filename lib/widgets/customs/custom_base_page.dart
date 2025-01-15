@@ -37,6 +37,9 @@ class CustomBasePage extends StatefulWidget {
   /// This function is triggered if user taps anywhere on the base page.
   final Function()? onBasePageTap;
 
+  /// This function is triggered if user double taps anywhere on the base page.
+  final Function()? onBasePageDoubleTap;
+
   /// This method is triggerd if user swipes to close or uses the android back button.
   final Function()? onHorizontalPopRoute;
 
@@ -177,6 +180,7 @@ class CustomBasePage extends StatefulWidget {
     this.isScrollable = true,
     this.canPop = true,
     this.onBasePageTap,
+    this.onBasePageDoubleTap,
     this.onHorizontalPopRoute,
     this.bottomIndent = 95.0,
     required this.pageIsLoading,
@@ -323,6 +327,7 @@ class _CustomBasePageState extends State<CustomBasePage> with WidgetsBindingObse
                   node: widget.focusScopeNode,
                   child: GestureDetector(
                     onTap: widget.onBasePageTap,
+                    onDoubleTap: widget.onBasePageDoubleTap,
                     // * A page view needs to handle horizontal swipe gesture internally.
                     onHorizontalDragStart: widget.isPageView
                         ? null

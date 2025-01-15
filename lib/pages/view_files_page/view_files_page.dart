@@ -80,16 +80,19 @@ class ViewFilesPage extends StatefulWidget {
 class _ViewFilesPageState extends State<ViewFilesPage> {
   // Init page controller.
   late PageController pageController;
+  late TransformationController transformationController;
 
   @override
   void initState() {
     super.initState();
     pageController = PageController(initialPage: widget.initialPage);
+    transformationController = TransformationController();
   }
 
   @override
   void dispose() {
     pageController.dispose();
+    transformationController.dispose();
     super.dispose();
   }
 
@@ -159,9 +162,9 @@ class _ViewFilesPageState extends State<ViewFilesPage> {
                 floatingActionBarDisabled: true,
                 edgeInsetsContent: const EdgeInsets.all(0.0),
                 onBasePageTap: () => context.read<ViewFilesPageCubit>().onTap(),
+                onBasePageDoubleTap: () => context.read<ViewFilesPageCubit>().onDoubleTap(transformationController: transformationController),
                 // Scrollable.
                 isScrollable: state.isFiles,
-
                 // Content.
                 content: [
                   Builder(
@@ -176,6 +179,7 @@ class _ViewFilesPageState extends State<ViewFilesPage> {
 
                       // Show image view.
                       return ImageView(
+                        transformationController: transformationController,
                         shouldReload: false,
                         overlayVisible: state.overlayVisible,
                         fileItemFuture: () => context.read<ViewFilesPageCubit>().loadFileItem(fileItem: fileItem),
