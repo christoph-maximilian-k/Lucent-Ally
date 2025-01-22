@@ -28,6 +28,7 @@ class CustomImageAvatar extends StatefulWidget {
   final Function()? onRemoveImage;
 
   // On file Tab.
+  final IconData fileIcon;
   final Function(FileItem)? onImageTap;
 
   // On long press image.
@@ -45,6 +46,7 @@ class CustomImageAvatar extends StatefulWidget {
     this.loadingMessage = '',
     required this.fileItem,
     this.onRemoveImage,
+    this.fileIcon = AppIcons.refresh,
     this.onImageTap,
     this.onLongPressImage,
     this.showImageDetailsIndications = false,
@@ -158,7 +160,7 @@ class _CustomImageAvatarState extends State<CustomImageAvatar> {
                       Radius.circular(100.0),
                     ),
                     child: Icon(
-                      AppIcons.refresh,
+                      widget.fileIcon,
                       color: Theme.of(context).iconTheme.color,
                       size: widget.isCircular ? 30.0 : 20,
                     ),

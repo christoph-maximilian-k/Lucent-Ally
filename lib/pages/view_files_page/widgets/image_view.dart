@@ -17,7 +17,6 @@ class ImageView extends StatefulWidget {
   final bool overlayVisible;
   final Function() fileItemFuture;
   final bool shouldReload;
-  final TransformationController transformationController;
 
   const ImageView({
     super.key,
@@ -25,7 +24,6 @@ class ImageView extends StatefulWidget {
     required this.fileItem,
     required this.fileItemFuture,
     required this.shouldReload,
-    required this.transformationController,
   });
 
   @override
@@ -104,15 +102,9 @@ class _ImageViewState extends State<ImageView> {
 
                       return ClipRRect(
                         borderRadius: BorderRadius.circular(5.0),
-                        child: InteractiveViewer(
-                          transformationController: widget.transformationController,
-                          panEnabled: true,
-                          minScale: 1.0,
-                          maxScale: 12.0,
-                          child: Image.memory(
-                            fileItem.bytes!,
-                            fit: BoxFit.contain,
-                          ),
+                        child: Image.memory(
+                          fileItem.bytes!,
+                          fit: BoxFit.contain,
                         ),
                       );
                     },

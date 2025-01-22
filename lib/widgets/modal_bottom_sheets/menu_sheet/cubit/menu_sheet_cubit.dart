@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/services.dart';
 
 // Config.
 import '/config/app_durations.dart';
@@ -30,6 +31,7 @@ import '/widgets/modal_bottom_sheets/entry_sheet/cubit/entry_sheet_cubit.dart';
 import '/widgets/modal_bottom_sheets/local_notification_sheet/cubit/local_notification_cubit.dart';
 import '/widgets/modal_bottom_sheets/create_custom_password_sheet/cubit/create_custom_password_sheet_cubit.dart';
 import '/widgets/modal_bottom_sheets/export_data_sheet/cubit/export_data_sheet_cubit.dart';
+import '/widgets/modal_bottom_sheets/profile_page_sheet/cubit/profile_page_sheet_cubit.dart';
 
 // Sheets.
 import '/widgets/modal_bottom_sheets/create_model_sheet/create_model_sheet.dart';
@@ -48,6 +50,7 @@ import '/widgets/modal_bottom_sheets/picker_sheet/picker_sheet.dart';
 import '/widgets/modal_bottom_sheets/import_data_sheet/cubit/import_data_sheet_cubit.dart';
 import '/widgets/modal_bottom_sheets/import_data_sheet/import_data_sheet.dart';
 import '/widgets/modal_bottom_sheets/export_data_sheet/export_data_sheet.dart';
+import '/widgets/modal_bottom_sheets/profile_page_sheet/profile_page_sheet.dart';
 
 // Models.
 import '/data/models/failure.dart';
@@ -58,6 +61,7 @@ import '/data/models/groups/groups.dart';
 import '/data/models/groups/group.dart';
 import '/data/models/picker_items/picker_item.dart';
 import '/data/models/picker_items/picker_items.dart';
+import '/data/models/files/file_item.dart';
 
 part 'menu_sheet_state.dart';
 
@@ -140,6 +144,8 @@ class MenuSheetCubit extends Cubit<MenuSheetState> with HelperFunctions {
 
       // Check if user name can change.
       final bool usernameCanChange = await _localStorageCubit.getSelfUsernameCanChange();
+
+      // TODO: load avatar.
 
       // Only emit state if cubit is open.
       if (isClosed) return;
@@ -1096,6 +1102,76 @@ class MenuSheetCubit extends Cubit<MenuSheetState> with HelperFunctions {
   // ############################################
   // # Shared User Profile
   // ############################################
+
+  /// This method can be used to show the profile page.
+  Future<void> showProfilePage({required BuildContext context}) async {
+    try {
+      // Ensure that user is in shared mode.
+      // * Not needed but safety measure.
+      if (state.isShared == false) throw Failure.genericError();
+
+      // Display profile page.
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (_) => BlocProvider<ProfilePageSheetCubit>(
+          create: (context) => ProfilePageSheetCubit(
+            localStorageCubit: _localStorageCubit,
+            menuSheetCubit: this,
+          )..initialize(avatar: state.avatar),
+          child: const ProfilePageSheet(),
+        ),
+      );
+    } on Failure catch (failure) {
+      // Output debug message.
+      debugPrint('MenuSheetCubit --> showProfilePage() --> failure: ${failure.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Emit failure state.
+      emit(state.copyWith(
+        failure: failure,
+        status: MenuSheetStatus.failure,
+      ));
+    } catch (exception) {
+      // Output debug message.
+      debugPrint('MenuSheetCubit --> showProfilePage() --> exception: ${exception.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Emit failure state.
+      emit(state.copyWith(
+        failure: Failure.genericError(),
+        status: MenuSheetStatus.failure,
+      ));
+    }
+  }
+
+  /// This method is used to load image into CustomImageAvatar.
+  /// * It primarily serves cosmetic reasons. If this is not accessed like that a state update will happen to quickly and UI will look jancky.
+  Future<FileItem> loadAvatar() async {
+    // * Necessary to avoid UI delay.
+    await Future.delayed(const Duration(milliseconds: AppDurations.microService));
+
+    // If loading avatar failed, display default.
+    if (state.avatar == null) {
+      // Load the asset using rootBundle.
+      final ByteData byteData = await rootBundle.load('assets/images/placeholder.png');
+
+      // Serve as a FileItem.
+      final FileItem defaultAvatar = FileItem.initial().copyWith(
+        bytes: byteData.buffer.asUint8List(),
+      );
+
+      return defaultAvatar;
+    }
+
+    // Otherwise avatar was loaded and should be shown.
+    return state.avatar!;
+  }
 
   /// This method can be used to change the current username.
   Future<void> changeUsername({required BuildContext context}) async {

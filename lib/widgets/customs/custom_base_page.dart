@@ -38,7 +38,10 @@ class CustomBasePage extends StatefulWidget {
   final Function()? onBasePageTap;
 
   /// This function is triggered if user double taps anywhere on the base page.
-  final Function()? onBasePageDoubleTap;
+  final Function(TapDownDetails)? onBasePageDoubleTap;
+
+  /// This function is triggerd if user swipes downward.
+  final Function(DragStartDetails, DragUpdateDetails)? onBasePageSwipedDown;
 
   /// This method is triggerd if user swipes to close or uses the android back button.
   final Function()? onHorizontalPopRoute;
@@ -181,6 +184,7 @@ class CustomBasePage extends StatefulWidget {
     this.canPop = true,
     this.onBasePageTap,
     this.onBasePageDoubleTap,
+    this.onBasePageSwipedDown,
     this.onHorizontalPopRoute,
     this.bottomIndent = 95.0,
     required this.pageIsLoading,
@@ -310,6 +314,9 @@ class _CustomBasePageState extends State<CustomBasePage> with WidgetsBindingObse
     // Display an error if isScrollable and isRefreshable are in conflict.
     final bool hasConflict = widget.isScrollable == false && widget.isRefreshable == true;
 
+    // Keep track of vertical drag start details.
+    DragStartDetails? verticalDragStartDetails;
+
     return SizedBox(
       height: widget.height ?? (widget.isModalSheet ? size.height * 0.85 : size.height),
       width: double.infinity,
@@ -327,7 +334,7 @@ class _CustomBasePageState extends State<CustomBasePage> with WidgetsBindingObse
                   node: widget.focusScopeNode,
                   child: GestureDetector(
                     onTap: widget.onBasePageTap,
-                    onDoubleTap: widget.onBasePageDoubleTap,
+                    onDoubleTapDown: widget.onBasePageDoubleTap == null ? null : (final TapDownDetails details) => widget.onBasePageDoubleTap!(details),
                     // * A page view needs to handle horizontal swipe gesture internally.
                     onHorizontalDragStart: widget.isPageView
                         ? null
@@ -344,6 +351,8 @@ class _CustomBasePageState extends State<CustomBasePage> with WidgetsBindingObse
                               if (canPop && widget.onHorizontalPopRoute != null) widget.onHorizontalPopRoute!();
                             }
                           },
+                    onVerticalDragStart: (final DragStartDetails details) => verticalDragStartDetails = details,
+                    onVerticalDragUpdate: widget.onBasePageSwipedDown == null ? null : (final DragUpdateDetails details) => widget.onBasePageSwipedDown!(verticalDragStartDetails!, details),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [

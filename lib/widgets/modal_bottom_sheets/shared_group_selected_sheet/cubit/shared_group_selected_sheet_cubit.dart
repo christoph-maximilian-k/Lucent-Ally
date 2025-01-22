@@ -1034,6 +1034,9 @@ class SharedGroupSelectedSheetCubit extends Cubit<SharedGroupSelectedSheetState>
         groupPrefs: groupPrefs,
       );
 
+      // Let dependent states know.
+      await _mainScreenCubit.onSharedGroupEdited(group: updatedGroup);
+
       // Only emit new state if cubit is still open.
       if (isClosed) return;
 

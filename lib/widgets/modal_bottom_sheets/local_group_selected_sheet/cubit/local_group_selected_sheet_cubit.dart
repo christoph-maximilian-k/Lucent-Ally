@@ -1010,6 +1010,9 @@ class LocalGroupSelectedSheetCubit extends Cubit<LocalGroupSelectedSheetState> w
         );
       });
 
+      // Update dependent cubits.
+      await _mainScreenCubit.onLocalGroupEdited(group: updatedGroup);
+
       // Only emit new state if cubit is still open.
       if (isClosed) return;
 

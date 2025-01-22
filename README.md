@@ -6,7 +6,7 @@
 
 An information storage, organization, and evaluation application.
 
-## This repository contains the complete source code of the application for Lucent Ally
+## This repository contains the complete source code of the application "Lucent Ally"
 
 You can visit the official website here: [Lucent Ally](http://www.lucentally.com)
 

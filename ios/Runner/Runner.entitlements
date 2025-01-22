@@ -5,8 +5,8 @@
 	<key>aps-environment</key>
 	<string>development</string>
 	<key>com.apple.developer.associated-domains</key>
-  	<array>
-    	<string>applinks:lucentally.com</string>
-  	</array>
+	<array>
+		<string>applinks:www.lucentally.com</string>
+	</array>
 </dict>
 </plist>

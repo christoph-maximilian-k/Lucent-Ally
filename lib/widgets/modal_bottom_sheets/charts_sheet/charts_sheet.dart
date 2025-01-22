@@ -125,15 +125,13 @@ class ChartsSheet extends StatelessWidget {
             // * No field identifications have been utilized, display message.
             // * ##########################################################################
             if (state.utilizedFieldIdentifications.items.isEmpty)
-              Column(
-                children: [
-                  const SizedBox(height: 30.0),
-                  Text(
-                    labels.noMeaningfulDataInGroupYet(),
-                    style: Theme.of(context).textTheme.displaySmall,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+              Padding(
+                padding: const EdgeInsets.only(left: 30.0, right: 30.0, top: 60.0),
+                child: Text(
+                  labels.noMeaningfulDataInGroupYet(),
+                  style: Theme.of(context).textTheme.displayMedium,
+                  textAlign: TextAlign.center,
+                ),
               ),
             // * ##########################################################################
             // * Charts.

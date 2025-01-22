@@ -109,6 +109,29 @@ class ViewFilesPageCubit extends Cubit<ViewFilesPageState> {
     ));
   }
 
+  /// This method gets triggerd if user interact with the interactive view.
+  void onZoomStart() {
+    // Only emit states if cubit is still open.
+    if (isClosed) return;
+
+    emit(state.copyWith(
+      pageViewPhysics: NeverScrollableScrollPhysics(),
+    ));
+  }
+
+  /// This method gets triggerd if user interact with the interactive view.
+  void onZoomEnd({required TransformationController controller}) {
+    // Do not update physics if user is zoomed in.
+    if (controller.value.getMaxScaleOnAxis() > 1) return;
+
+    // Only emit states if cubit is still open.
+    if (isClosed) return;
+
+    emit(state.copyWith(
+      pageViewPhysics: BouncingScrollPhysics(),
+    ));
+  }
+
   /// This method will be triggered if user tabs on page.
   void onTap() {
     // Only emit states if cubit is still open.
@@ -119,10 +142,114 @@ class ViewFilesPageCubit extends Cubit<ViewFilesPageState> {
     ));
   }
 
-  /// This method will be triggered if user double tabs on page.
-  void onDoubleTap({required TransformationController transformationController}) {
-    // Reset the transformation to the initial scale and position.
-    transformationController.value = Matrix4.identity();
+  /// This method will be triggered if user tabs on page.
+  void onDoubleTap({required BuildContext context, required TransformationController transformationController, required TapDownDetails details}) {
+    try {
+      // Disable this feature if files are displayed.
+      if (state.isFiles) return;
+
+      // Check if user is zoomed.
+      final bool isZoomed = transformationController.value.getMaxScaleOnAxis() > 1;
+
+      // * User is already zoomed in, reset.
+      if (isZoomed) {
+        // Reset zoom.
+        transformationController.value = Matrix4.identity();
+
+        // Only emit states if cubit is still open.
+        if (isClosed) return;
+
+        emit(state.copyWith(
+          pageViewPhysics: BouncingScrollPhysics(),
+        ));
+      } else {
+        final position = details.localPosition;
+
+        // For a 3x zoom
+        transformationController.value = Matrix4.identity()
+          ..translate(-position.dx * 2, -position.dy * 2)
+          ..scale(3.0);
+
+        // Only emit states if cubit is still open.
+        if (isClosed) return;
+
+        emit(state.copyWith(
+          pageViewPhysics: NeverScrollableScrollPhysics(),
+        ));
+      }
+    } on Failure catch (failure) {
+      // Output debug message.
+      debugPrint('ViewFilesPageCubit --> onDoubleTap() --> failure: ${failure.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Update state.
+      emit(state.copyWith(
+        failure: failure,
+        status: ViewFilesPageStatus.failure,
+      ));
+    } catch (exception) {
+      // Output debug message.
+      debugPrint('ViewFilesPageCubit --> onDoubleTap() --> exception: ${exception.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Update state.
+      emit(state.copyWith(
+        failure: Failure.genericError(),
+        status: ViewFilesPageStatus.failure,
+      ));
+    }
+  }
+
+  /// This method will be triggered if user swipes down on base page.
+  void onBasePageSwipedDown({required DragStartDetails startDetails, required DragUpdateDetails updateDetails, required TransformationController transformationController}) {
+    try {
+      // Check if user is zoomed.
+      final bool isZoomed = transformationController.value.getMaxScaleOnAxis() > 1;
+
+      // If user is zoomed in, do nothing.
+      if (isZoomed) return;
+
+      // Track the vertical movement (y-axis).
+      final double swipeDistance = updateDetails.localPosition.dy - startDetails.localPosition.dy;
+
+      // Check if the swipe distance is greater than 150px.
+      if (swipeDistance > 110) {
+        // Only emit states if cubit is still open.
+        if (isClosed) return;
+
+        emit(state.copyWith(
+          status: ViewFilesPageStatus.close,
+        ));
+      }
+    } on Failure catch (failure) {
+      // Output debug message.
+      debugPrint('ViewFilesPageCubit --> onBasePageSwipedDown() --> failure: ${failure.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Update state.
+      emit(state.copyWith(
+        failure: failure,
+        status: ViewFilesPageStatus.failure,
+      ));
+    } catch (exception) {
+      // Output debug message.
+      debugPrint('ViewFilesPageCubit --> onBasePageSwipedDown() --> exception: ${exception.toString()}');
+
+      // Only emit state if cubit is open.
+      if (isClosed) return;
+
+      // Update state.
+      emit(state.copyWith(
+        failure: Failure.genericError(),
+        status: ViewFilesPageStatus.failure,
+      ));
+    }
   }
 
   /// This method is triggerd if user wants to view file options.

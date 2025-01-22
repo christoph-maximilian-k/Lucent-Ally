@@ -17,6 +17,7 @@ class ViewFilesPageState extends Equatable {
   final int currentPage;
   final Files files;
   final FileItem currentFileItem;
+  final ScrollPhysics pageViewPhysics;
 
   final String loadingMessage;
 
@@ -40,19 +41,21 @@ class ViewFilesPageState extends Equatable {
     required this.failure,
     required this.pageFailure,
     required this.status,
+    required this.pageViewPhysics,
   });
 
   @override
-  List<Object> get props => [overlayVisible, fromGroup, isFiles, loadingMessage, currentPage, currentFileItem, fromEntry, files, failure, pageFailure, status];
+  List<Object> get props => [overlayVisible, pageViewPhysics, fromGroup, isFiles, loadingMessage, currentPage, currentFileItem, fromEntry, files, failure, pageFailure, status];
 
   /// Initialize a new `ViewFilesPageState` object.
   factory ViewFilesPageState.initial({required ViewFilesPageArguments arguments}) {
     return ViewFilesPageState(
       overlayVisible: true,
-      isFiles: false,
+      isFiles: arguments.isFiles,
       fromGroup: arguments.fromGroup,
       fromEntry: arguments.fromEntry,
       currentPage: arguments.initialPage,
+      pageViewPhysics: BouncingScrollPhysics(),
       loadingMessage: '',
       currentFileItem: arguments.files.items[arguments.initialPage],
       files: arguments.files,
@@ -71,8 +74,9 @@ class ViewFilesPageState extends Equatable {
     bool? isFiles,
     int? currentPage,
     Files? files,
-    String? loadingMessage,
     FileItem? currentFileItem,
+    ScrollPhysics? pageViewPhysics,
+    String? loadingMessage,
     Group? fromGroup,
     Entry? fromEntry,
     Failure? failure,
@@ -84,8 +88,9 @@ class ViewFilesPageState extends Equatable {
       isFiles: isFiles ?? this.isFiles,
       currentPage: currentPage ?? this.currentPage,
       files: files ?? this.files,
-      loadingMessage: loadingMessage ?? this.loadingMessage,
       currentFileItem: currentFileItem ?? this.currentFileItem,
+      pageViewPhysics: pageViewPhysics ?? this.pageViewPhysics,
+      loadingMessage: loadingMessage ?? this.loadingMessage,
       fromGroup: fromGroup ?? this.fromGroup,
       fromEntry: fromEntry ?? this.fromEntry,
       failure: failure ?? this.failure,

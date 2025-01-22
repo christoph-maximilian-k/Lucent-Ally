@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucent_ally/data/models/files/file_item.dart';
+import 'package:lucent_ally/widgets/customs/custom_image_avatar.dart';
 
 // Config.
 import '/config/app_icons.dart';
@@ -144,6 +146,15 @@ class MenuSheet extends StatelessWidget {
           },
           // Content.
           content: [
+            // * Profile
+            // TODO: Testing.
+            // if (state.isShared)
+            //   CustomImageAvatar(
+            //     isCircular: true,
+            //     onImageTap: (final FileItem fileItem) => context.read<MenuSheetCubit>().showProfilePage(context: context),
+            //     fileItemFuture: () => context.read<MenuSheetCubit>().loadAvatar(),
+            //     fileItem: state.avatar,
+            //   ),
             // * Profile.
             Visibility(
               visible: state.usernameCanChange,

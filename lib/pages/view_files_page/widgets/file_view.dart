@@ -23,7 +23,7 @@ class FileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 60.0),
+        const SizedBox(height: 80.0),
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: SelectableText(

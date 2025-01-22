@@ -407,7 +407,7 @@ class MainScreenCubit extends Cubit<MainScreenState> with HelperFunctions {
 
   /// This method can be used to select what type of groups should be shown.
   Future<void> groupsDropDownPressed({required BuildContext context}) async {
-    // Helper to have request id available in try catch block.
+    // Init outside of try catch to have access to this variable in the catch blocks.
     String requestId = '';
 
     // Perform function.
@@ -452,15 +452,15 @@ class MainScreenCubit extends Cubit<MainScreenState> with HelperFunctions {
       emit(state.copyWith(
         failure: Failure.initial(),
         status: MainScreenStatus.pageIsLoading,
-        showCancleButton: true,
+        showCancleButton: state.isShared == false ? true : false,
         calledFrom: 'groupsDropDownPressed()',
       ));
 
-      // Get a request id to enable cancle request functionality.
-      requestId = await _localStorageCubit.getRequestId();
-
       // * If user selected local mode, init local.
       if (isLocalMode) {
+        // * This is only here to show a loading screen briefly so that user knows UI layout changed.
+        await Future.delayed(const Duration(milliseconds: AppDurations.avoidUIdelay));
+
         // Access local groups.
         final Groups topLevelGroups = await _localStorageCubit.getAllLocalTopLevelGroups();
 
@@ -490,12 +490,6 @@ class MainScreenCubit extends Cubit<MainScreenState> with HelperFunctions {
         // Get indication if all available recent entries have been accessed.
         final bool isFinished = localRecentEntries.items.length < state.recentEntriesLimit;
 
-        // Check if request was cancled.
-        final bool requestGotCancled = await _localStorageCubit.getWasRequestCancled(requestId: requestId);
-
-        // Stop function if request was cancled.
-        if (requestGotCancled) return;
-
         // Only emit state if cubit is open.
         if (isClosed) return;
 
@@ -515,6 +509,9 @@ class MainScreenCubit extends Cubit<MainScreenState> with HelperFunctions {
 
         return;
       }
+
+      // Get a request id to enable cancle request functionality.
+      requestId = await _localStorageCubit.getRequestId();
 
       // * Otherwise user selected shared mode.
 
@@ -551,10 +548,6 @@ class MainScreenCubit extends Cubit<MainScreenState> with HelperFunctions {
 
       // Create an anon cloud user if it does not already exist.
       await _localStorageCubit.createCloudUser();
-
-      // * Uncomment this to create a test model entry in the cloud.
-      // final ModelEntry testModelEntry = ModelEntry.test(isShared: true);
-      // await _localStorageCubit.createSharedModelEntry(modelEntry: testModelEntry);
 
       // Access shared groups.
       final Groups topLevelGroups = await _localStorageCubit.getSelfAllSharedTopLevelGroups();

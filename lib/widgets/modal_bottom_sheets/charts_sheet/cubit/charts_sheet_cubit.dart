@@ -323,8 +323,9 @@ class ChartsSheetCubit extends Cubit<ChartsSheetState> with HelperFunctions {
       final Map<String, Measurements> utilizedCategoriesAndUnits = chartInitData['measurements'];
       final int totalEntries = chartInitData['total_entries'];
 
-      // Make sure user can only use this page if there are entries and fields present.
-      if (totalEntries == 0 || utilizedFieldIdentifications.items.isEmpty) throw Failure.genericError();
+      // Make sure user can only use this page if there are entries present.
+      // * This should not get invoked but just to be sure the check is implemented regardless.
+      if (totalEntries == 0) throw Failure.genericError();
 
       // Convert to picker items.
       final PickerItems fieldTypesAsPickerItems = utilizedFieldIdentifications.fieldTypesToPickerItems(

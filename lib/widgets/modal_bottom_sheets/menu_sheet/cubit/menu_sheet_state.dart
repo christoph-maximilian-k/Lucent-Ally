@@ -20,6 +20,7 @@ class MenuSheetState extends Equatable {
   final bool isShared;
 
   final bool usernameCanChange;
+  final FileItem? avatar;
 
   final ModelEntries entryModels;
   final Failure modelEntriesFailure;
@@ -36,6 +37,7 @@ class MenuSheetState extends Equatable {
   const MenuSheetState({
     required this.isShared,
     required this.usernameCanChange,
+    required this.avatar,
     required this.entryModels,
     required this.modelEntriesFailure,
     required this.selectedModelEntry,
@@ -49,6 +51,7 @@ class MenuSheetState extends Equatable {
   List<Object?> get props => [
         isShared,
         usernameCanChange,
+        avatar,
         entryModels,
         localGroups,
         pageFailure,
@@ -63,6 +66,7 @@ class MenuSheetState extends Equatable {
     return MenuSheetState(
       isShared: false,
       usernameCanChange: false,
+      avatar: null,
       entryModels: ModelEntries.initial(),
       modelEntriesFailure: Failure.initial(),
       localGroups: Groups.initial(),
@@ -76,6 +80,7 @@ class MenuSheetState extends Equatable {
   MenuSheetState copyWith({
     bool? isShared,
     bool? usernameCanChange,
+    FileItem? avatar,
     ModelEntries? entryModels,
     Failure? modelEntriesFailure,
     Groups? localGroups,
@@ -87,6 +92,7 @@ class MenuSheetState extends Equatable {
     return MenuSheetState(
       isShared: isShared ?? this.isShared,
       usernameCanChange: usernameCanChange ?? this.usernameCanChange,
+      avatar: avatar ?? this.avatar,
       entryModels: entryModels ?? this.entryModels,
       modelEntriesFailure: modelEntriesFailure ?? this.modelEntriesFailure,
       localGroups: localGroups ?? this.localGroups,

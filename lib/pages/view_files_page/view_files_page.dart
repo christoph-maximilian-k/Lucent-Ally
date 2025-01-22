@@ -43,11 +43,11 @@ class ViewFilesPageArguments {
 }
 
 class ViewFilesPage extends StatefulWidget {
-  final int initialPage;
+  final ViewFilesPageArguments arguments;
 
   const ViewFilesPage({
     super.key,
-    required this.initialPage,
+    required this.arguments,
   });
 
   /// The route name for navigation purposes.
@@ -67,7 +67,7 @@ class ViewFilesPage extends StatefulWidget {
           arguments: arguments, // * Needs to be supplied here not in initialize().
         ),
         child: ViewFilesPage(
-          initialPage: arguments.initialPage,
+          arguments: arguments,
         ),
       ),
     );
@@ -85,14 +85,13 @@ class _ViewFilesPageState extends State<ViewFilesPage> {
   @override
   void initState() {
     super.initState();
-    pageController = PageController(initialPage: widget.initialPage);
+    pageController = PageController(initialPage: widget.arguments.initialPage);
     transformationController = TransformationController();
   }
 
   @override
   void dispose() {
     pageController.dispose();
-    transformationController.dispose();
     super.dispose();
   }
 
@@ -124,72 +123,91 @@ class _ViewFilesPageState extends State<ViewFilesPage> {
         return Container(
           // This is needed because otherwise if user swipes outside of page view a different color is shown.
           color: Theme.of(context).colorScheme.surface,
-          child: PageView.builder(
-            controller: pageController,
-            allowImplicitScrolling: true,
-            onPageChanged: (final int pageIndex) => context.read<ViewFilesPageCubit>().onPageChanged(index: pageIndex),
-            itemCount: state.files.items.length,
-            itemBuilder: (context, itemIndex) {
-              // Access file item.
-              final FileItem fileItem = state.files.items[itemIndex];
+          child: InteractiveViewer(
+            // * Ensure that if files are displayed, zoom is disabled.
+            scaleEnabled: state.isFiles == false,
+            panEnabled: state.isFiles == false,
+            transformationController: transformationController,
+            onInteractionStart: (details) => context.read<ViewFilesPageCubit>().onZoomStart(),
+            onInteractionEnd: (details) => context.read<ViewFilesPageCubit>().onZoomEnd(controller: transformationController),
+            minScale: 1.0,
+            maxScale: 12.0,
+            child: PageView.builder(
+              controller: pageController,
+              physics: state.pageViewPhysics,
+              allowImplicitScrolling: true,
+              onPageChanged: (final int pageIndex) => context.read<ViewFilesPageCubit>().onPageChanged(index: pageIndex),
+              itemCount: state.files.items.length,
+              itemBuilder: (context, itemIndex) {
+                // Access file item.
+                final FileItem fileItem = state.files.items[itemIndex];
 
-              return CustomBasePage(
-                // Page view.
-                isPageView: true,
-                // Modal Sheet.
-                isModalSheet: false,
-                // Page loading.
-                pageIsLoading: pageIsLoading,
-                // Page Failure.
-                pageHasError: pageHasError,
-                pageFailure: state.pageFailure,
-                pageErrorButtonLabel: labels.basicLabelsClose(),
-                onPageErrorButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
-                // Common Failure.
-                failure: state.failure,
-                onDismissFailure: () => context.read<ViewFilesPageCubit>().dismissFailure(),
-                // Close while page loading.
-                onCloseWhilePageLoadingButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
-                // Leading Icon Button.
-                leadingIconButtonIcon: AppIcons.back,
-                onLeadingIconButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
-                // First Trailing Icon Button.
-                firstTrailingIconButtonIcon: AppIcons.moreOptions,
-                onFirstTrailingIconButtonPressed: () => context.read<ViewFilesPageCubit>().onMenuPressed(context: context),
-                // Floating Action Bar.
-                actionBarIsLoading: loading,
-                loadingMessage: state.loadingMessage,
-                floatingActionBarDisabled: true,
-                edgeInsetsContent: const EdgeInsets.all(0.0),
-                onBasePageTap: () => context.read<ViewFilesPageCubit>().onTap(),
-                onBasePageDoubleTap: () => context.read<ViewFilesPageCubit>().onDoubleTap(transformationController: transformationController),
-                // Scrollable.
-                isScrollable: state.isFiles,
-                // Content.
-                content: [
-                  Builder(
-                    builder: (context) {
-                      // Show a different view for files.
-                      if (state.isFiles) {
-                        return FileView(
+                return CustomBasePage(
+                  // Page view.
+                  isPageView: true,
+                  // Modal Sheet.
+                  isModalSheet: false,
+                  // Page loading.
+                  pageIsLoading: pageIsLoading,
+                  // Page Failure.
+                  pageHasError: pageHasError,
+                  pageFailure: state.pageFailure,
+                  pageErrorButtonLabel: labels.basicLabelsClose(),
+                  onPageErrorButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
+                  // Common Failure.
+                  failure: state.failure,
+                  onDismissFailure: () => context.read<ViewFilesPageCubit>().dismissFailure(),
+                  // Close while page loading.
+                  onCloseWhilePageLoadingButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
+                  // Leading Icon Button.
+                  leadingIconButtonIcon: AppIcons.back,
+                  onLeadingIconButtonPressed: () => context.read<ViewFilesPageCubit>().closePage(),
+                  // First Trailing Icon Button.
+                  firstTrailingIconButtonIcon: AppIcons.moreOptions,
+                  onFirstTrailingIconButtonPressed: () => context.read<ViewFilesPageCubit>().onMenuPressed(context: context),
+                  // Floating Action Bar.
+                  actionBarIsLoading: loading,
+                  loadingMessage: state.loadingMessage,
+                  floatingActionBarDisabled: true,
+                  edgeInsetsContent: const EdgeInsets.all(0.0),
+                  onBasePageTap: () => context.read<ViewFilesPageCubit>().onTap(),
+                  onBasePageDoubleTap: (final TapDownDetails details) => context.read<ViewFilesPageCubit>().onDoubleTap(
+                        context: context,
+                        details: details,
+                        transformationController: transformationController,
+                      ),
+                  onBasePageSwipedDown: (final DragStartDetails startDetails, final DragUpdateDetails updateDetails) => context.read<ViewFilesPageCubit>().onBasePageSwipedDown(
+                        startDetails: startDetails,
+                        updateDetails: updateDetails,
+                        transformationController: transformationController,
+                      ),
+                  // Scrollable.
+                  isScrollable: state.isFiles,
+                  // Content.
+                  content: [
+                    Builder(
+                      builder: (context) {
+                        // Show a different view for files.
+                        if (state.isFiles) {
+                          return FileView(
+                            overlayVisible: state.overlayVisible,
+                            fileItem: fileItem,
+                          );
+                        }
+
+                        // Show image view.
+                        return ImageView(
+                          shouldReload: false,
                           overlayVisible: state.overlayVisible,
+                          fileItemFuture: () => context.read<ViewFilesPageCubit>().loadFileItem(fileItem: fileItem),
                           fileItem: fileItem,
                         );
-                      }
-
-                      // Show image view.
-                      return ImageView(
-                        transformationController: transformationController,
-                        shouldReload: false,
-                        overlayVisible: state.overlayVisible,
-                        fileItemFuture: () => context.read<ViewFilesPageCubit>().loadFileItem(fileItem: fileItem),
-                        fileItem: fileItem,
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
           ),
         );
       },
